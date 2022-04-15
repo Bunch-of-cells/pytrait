@@ -102,7 +102,7 @@ class TraitMeta(type):
 
 
 class Trait(metaclass=TraitMeta):
-    ...
+    pass
 
 
 T = TypeVar("T", bound=Callable)
