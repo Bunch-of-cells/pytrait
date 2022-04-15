@@ -5,7 +5,7 @@
 from trait import Trait, implemented, private_impl
 
 class MyTrait(Trait):
-    def my_func(pass):
+    def my_func(self):
         ...
 
     @implemented
