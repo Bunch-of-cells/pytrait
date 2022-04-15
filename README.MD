@@ -1,8 +1,8 @@
 # Traits in Python
 
 ## Create a new trait
-```
-from trait import Trait, implemented
+```py
+from trait import Trait, implemented, private_impl
 
 class MyTrait(Trait):
     def my_func(pass):
@@ -12,13 +12,14 @@ class MyTrait(Trait):
     def default(self):
         print("This is the default implementation")
 
-    def _personal_method(self):
+    @private_impl
+    def personal_method(self):
         print("This is a personal method, cannot be accessed by anyone")
 
 ```
 
 ## How Impl a Trait
-```
+```py
 class MyClass:
     pass
 
