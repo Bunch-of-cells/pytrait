@@ -1,7 +1,32 @@
-from typing import Any, Callable, Protocol, TypeVar
+from collections.abc import Callable
+from typing import Any, Literal, Protocol, TypeVar, overload
 
 
 class TraitMeta(type):
+    @overload
+    def __new__(
+        mcls,
+        name: Literal["Impl"],
+        bases: tuple[type, type],
+        namespace: dict[str, Any],
+        /,
+        super_traits: tuple[type, ...] = (),
+        **kwargs: Any,
+    ) -> None:
+        ...
+
+    @overload
+    def __new__(
+        mcls,
+        name: str,
+        bases: tuple[type, ...],
+        namespace: dict[str, Any],
+        /,
+        super_traits: tuple[type, ...] = (),
+        **kwargs: Any,
+    ):
+        ...
+
     def __new__(
         mcls,
         name: str,
@@ -32,6 +57,11 @@ class TraitMeta(type):
             unimplemented = {
                 k: v for k, v in vars(trait).items() if not k.startswith("_")
             }
+
+            private = {
+                k: v for k, v in vars(trait).items() if hasattr(v, "private_impl")
+            }
+
             for k, v in namespace.items():
                 if k.startswith("_"):
                     continue
@@ -49,9 +79,13 @@ class TraitMeta(type):
                 else:
                     setattr(cls, method, value)
 
+            for method, value in private.items():
+                setattr(cls, method, value)
+
             impls = getattr(cls, "__impls__", [])
             impls.append(trait)
             return setattr(cls, "__impls__", impls)
+
         if bases and Trait in bases:
             namespace["__trait__"] = True
             namespace["__super_traits__"] = super_traits
@@ -76,4 +110,9 @@ T = TypeVar("T", bound=Callable)
 
 def implemented(method: T) -> T:
     setattr(method, "implemented", True)
+    return method
+
+
+def private_impl(method: T) -> T:
+    setattr(method, "private_impl", True)
     return method
